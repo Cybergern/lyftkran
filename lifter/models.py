@@ -28,7 +28,7 @@ class Role(Enum):
 
 class Lifter(models.Model):
     def __str__(self):
-        return self.first_name + " " + self.family_name
+        return "%s %s" % (self.first_name, self.family_name)
 
     def getCurrentLicense(self):
         return License.objects.filter(lifter=self)
@@ -49,7 +49,7 @@ class Lifter(models.Model):
 
 class License(models.Model):
     def __str__(self):
-        return self.license_number + " - " + self.license_year
+        return "%s - %s" % (self.license_number, self.license_year)
     lifter = models.ForeignKey('Lifter', on_delete=models.DO_NOTHING)
     license_number = models.CharField(max_length=8)
     license_year = models.PositiveIntegerField()
