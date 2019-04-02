@@ -1,0 +1,9 @@
+{% extends 'lifter/layout.html' %}
+
+{% block content %}
+<ul>
+    {% for lifter in lifters %}
+        <li>{{ lifter }} - {{ lifter.getCurrentLicense() }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
