@@ -1,9 +1,10 @@
-from django.db import models
+""" Create your models here. """
 from datetime import datetime
 from enum import Enum
-# Create your models here.
+from django.db import models
 
 class LifterClass(Enum):
+    """Represents a lifters age class"""
     U = "Ungdom"
     J = "Junior"
     S = "Senior"
@@ -13,25 +14,30 @@ class LifterClass(Enum):
     M4 = "Veteran (70-79 år)"
 
 class Gender(Enum):
+    """Represents a lifters gender"""
     M = "Man"
     F = "Kvinna"
 
 class LicenseStatus(Enum):
+    """Represents a license status"""
     LI = "Licensierad"
     EL = "Ej licensierad"
 
 class Role(Enum):
+    """Represents a user role within the application"""
     NN = "Ingen roll"
     NA = "Förbundsadministratör"
     DA = "Distriktsadministratör"
     CA = "Föreningsadministratör"
 
 class Lifter(models.Model):
+    """Represents a single lifter within the organization"""
     def __str__(self):
-        return "%s %s" % (self.first_name, self.family_name)
+        return "%s %s - %s" % (self.first_name, self.family_name, self.get_latest_license())
 
-    def getCurrentLicense(self):
-        return License.objects.filter(lifter=self)
+    def get_latest_license(self):
+        """Retrieves the latest license for this lifter"""
+        return License.objects.filter(lifter=self).order_by('license_year')[0]
 
     first_name = models.CharField(max_length=50)
     family_name = models.CharField(max_length=100)
@@ -48,20 +54,24 @@ class Lifter(models.Model):
     created_at = models.DateTimeField(default=datetime.now, editable=False)
 
 class License(models.Model):
+    """Represents a single year-long license for a single lifter"""
     def __str__(self):
         return "%s - %s" % (self.license_number, self.license_year)
     lifter = models.ForeignKey('Lifter', on_delete=models.DO_NOTHING)
     license_number = models.CharField(max_length=8)
     license_year = models.PositiveIntegerField()
     license_requested = models.DateTimeField(default=datetime.now, blank=True)
-    license_status = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in LicenseStatus])
+    license_status = models.CharField(max_length=2,
+                                      choices=[(tag.name, tag.value) for tag in LicenseStatus])
 
 class District(models.Model):
+    """Represents a district"""
     def __str__(self):
         return self.name
     name = models.CharField(max_length=100)
 
 class Club(models.Model):
+    """Represents a club"""
     def __str__(self):
         return self.name
     name = models.CharField(max_length=100)
