@@ -33,11 +33,7 @@ class Role(Enum):
 class Lifter(models.Model):
     """Represents a single lifter within the organization"""
     def __str__(self):
-        return "%s %s - %s" % (self.first_name, self.family_name, self.get_latest_license())
-
-    def get_latest_license(self):
-        """Retrieves the latest license for this lifter"""
-        return License.objects.filter(lifter=self).order_by('license_year')[0]
+        return "%s %s" % (self.first_name, self.family_name)
 
     first_name = models.CharField(max_length=50)
     family_name = models.CharField(max_length=100)
@@ -47,7 +43,6 @@ class Lifter(models.Model):
     gender = models.CharField(max_length=1, choices=[(tag.name, tag.value) for tag in Gender])
     id_number = models.CharField(max_length=12)
     club = models.ForeignKey('Club', on_delete=models.DO_NOTHING)
-    district = models.ForeignKey('District', on_delete=models.DO_NOTHING)
     phone = models.CharField(max_length=50)
     email = models.EmailField()
 
@@ -56,12 +51,12 @@ class Lifter(models.Model):
 class License(models.Model):
     """Represents a single year-long license for a single lifter"""
     def __str__(self):
-        return "%s - %s" % (self.license_number, self.license_year)
+        return "%s - %s (%s)" % (self.number, self.year, self.requested)
     lifter = models.ForeignKey('Lifter', on_delete=models.DO_NOTHING)
-    license_number = models.CharField(max_length=8)
-    license_year = models.PositiveIntegerField()
-    license_requested = models.DateTimeField(default=datetime.now, blank=True)
-    license_status = models.CharField(max_length=2,
+    number = models.CharField(max_length=8)
+    year = models.PositiveIntegerField()
+    requested = models.DateTimeField(default=datetime.now, blank=True)
+    status = models.CharField(max_length=2,
                                       choices=[(tag.name, tag.value) for tag in LicenseStatus])
 
 class District(models.Model):
@@ -75,3 +70,4 @@ class Club(models.Model):
     def __str__(self):
         return self.name
     name = models.CharField(max_length=100)
+    district = models.ForeignKey('District', on_delete=models.DO_NOTHING)

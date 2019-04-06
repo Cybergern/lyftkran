@@ -1,6 +1,8 @@
-from django.conf.urls import url
-from . import views
+from django.urls import path
+from .views import LifterList
+from .views import LifterDetail
 
 urlpatterns = [
-    url('^$', views.index, name='index')
-];
+    path('lifters/', LifterList.as_view()),
+    path('<int:pk>/', LifterDetail.as_view()),
+]

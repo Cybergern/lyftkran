@@ -1,0 +1,18 @@
+{% extends 'lifter/layout.html' %}
+
+{% block content %}
+<ul>
+    <li>{{ lifter }} - {{ lifter.club }} ({{ lifter.gender }})</li>
+    <li>{{ lifter.address }}</li>
+    <li>{{ lifter.postal_code }} {{ lifter.postal_city }}</li>
+    <li>{{ lifter.id_number }}</li>
+    <li>{{ lifter.phone }}</li>
+    <li>{{ lifter.email }}</li>
+</ul>
+
+<ul>
+    {% for license in lifter.license_set.all %}
+    <li>{{ license }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
