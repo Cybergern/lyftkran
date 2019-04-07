@@ -2,12 +2,13 @@
 
 {% block content %}
 <ul>
-    <li>{{ lifter }} - {{ lifter.club }} ({{ lifter.gender }})</li>
-    <li>{{ lifter.address }}</li>
-    <li>{{ lifter.postal_code }} {{ lifter.postal_city }}</li>
-    <li>{{ lifter.id_number }}</li>
-    <li>{{ lifter.phone }}</li>
-    <li>{{ lifter.email }}</li>
+    <li><b>Namn: </b>{{ lifter }} <b>Kön: </b>({{ lifter.gender }})</li>
+    <li><b>Klubb: </b>{{ lifter.club }}</li>
+    <li><b>Address: </b>{{ lifter.address }}</li>
+    <li><b>Postadress: </b>{{ lifter.postal_code }} {{ lifter.postal_city }}</li>
+    <li><b>Personnummer: </b>{{ lifter.id_number }}</li>
+    <li><b>Telefon: </b>{{ lifter.phone }}</li>
+    <li><b>Email: </b>{{ lifter.email }}</li>
 </ul>
 
 <ul>
