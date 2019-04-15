@@ -7,8 +7,7 @@ from random import randint
 from autofixture import AutoFixture
 from django.core.management.base import BaseCommand
 
-from lifter.models import (Club, District, Gender, License, LicenseStatus,
-                           Lifter, LifterClass)
+from lifter.models import *
 
 
 class TestDataGenerator():
@@ -17,8 +16,8 @@ class TestDataGenerator():
                           "Stefan", "Göran", "My", "Linnea", "Maria", "Hampus")
     family_name_choices = ("Karlsson", "Persson", "Marquis", "May", "Merkel", "Johansson", "Gustafsson",
                            "Thyberg", "Olsson", "Björkman")
-    city_name_choices = ("Målilla", "Halmstad", "Stockholm",
-                         "Göteborg", "Karlstad", "Örebro", "Västerås", "Malmö")
+    city_name_choices = ("Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås", "Örebro", "Linköping",
+                         "Helsingborg", "Jönköping", "Norrköping", "Lund", "Umeå", "Gävle", "Solna", "Växjö")
     club_suffix_choices = ("SK", "TK", "AK", "KK", "IK", "IF")
     districts = ("Mellersta Norrlands SDF", "Norra Norrlands SDF", "Sydsvenska SDF", "Sydöstra SDF", "Södra Norrlands SDF",
                  "Västra Götalands SDF", "Västra Svealands SDF", "Östra Svealands SDF")
@@ -65,8 +64,10 @@ class TestDataGenerator():
             District.objects.create(name=dis_name)
 
     def create_club(self):
-        Club.objects.create(name=self.get_random_club_name(
-        ), district=random.choice(District.objects.all()))
+        club_name = self.get_random_club_name()
+        while (club_name in [club.name for club in Club.objects.all()]):
+            club_name = self.get_random_club_name()
+        Club.objects.create(name=club_name, district=random.choice(District.objects.all()))
 
     def create_lifter(self):
         name_and_email = self.get_random_name_and_email()
@@ -76,15 +77,20 @@ class TestDataGenerator():
                                        club=random.choice(Club.objects.all()), phone=self.get_random_phone(), email=name_and_email[2])
         self.create_licenses(lifter)
 
+    def rand_boolean(self):
+        return bool(random.getrandbits(1))
+
     def create_licenses(self, license_lifter):
         year_now = int(datetime.now().strftime("%Y"))
-        for x in range(year_now - 2, year_now + 1):
-            license_number = license_lifter.id_number[2:8] + license_lifter.first_name[0].lower(
-            ) + license_lifter.family_name[0].lower()
-            license_year = x
-            license_status = random.choice(list(LicenseStatus)).name
-            License.objects.create(
-                lifter=license_lifter, number=license_number, year=license_year, status=license_status)
+        for x in range(year_now - 10, year_now + 1):
+            if self.rand_boolean():
+                license_number = license_lifter.id_number[2:8] + \
+                                 license_lifter.first_name[0].lower() + \
+                                 license_lifter.family_name[0].lower()
+                license_year = x
+                license_status = random.choice(list(LicenseStatus)).name
+                License.objects.create(
+                    lifter=license_lifter, number=license_number, year=license_year, status=license_status)
 
     def make_test_data(self):
         self.create_all_districts()

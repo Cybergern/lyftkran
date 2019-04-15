@@ -1,9 +1,0 @@
-{% extends 'lifter/layout.html' %}
-
-{% block content %}
-<ul>
-    {% for lifter in lifters %}
-        <li><a href="../{{ lifter.id }}/">{{ lifter }}</a></li>
-    {% endfor %}
-</ul>
-{% endblock %}

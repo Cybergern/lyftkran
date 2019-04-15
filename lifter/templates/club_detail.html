@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<ul>
+    <li><b>Namn: </b>{{ club }} </li>
+    <li><b>Distrikt: </b>{{ club.district }}</li>
+</ul>
+
+<ul>
+    <li><b>Lifters:</b></li>
+    {% for lifter in club.lifter_set.all %}
+    <li><a href="../../lifters/{{ lifter.id }}/">{{ lifter }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
