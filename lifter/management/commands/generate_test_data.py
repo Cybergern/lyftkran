@@ -1,16 +1,14 @@
 import random
-from datetime import datetime
-import time
-from enum import Enum
+import unicodedata
+import uuid
 from random import randint
 
-from autofixture import AutoFixture
 from django.core.management.base import BaseCommand
 
 from lifter.models import *
 
 
-class TestDataGenerator():
+class TestDataGenerator:
 
     first_name_choices = ("Björn", "Johanna", "Leslie", "Kim",
                           "Stefan", "Göran", "My", "Linnea", "Maria", "Hampus")
@@ -24,6 +22,8 @@ class TestDataGenerator():
     road_base = ("Tiger", "Löv", "Folkunga", "Kungs", "Drottning",
                  "Vikinga", "Gran", "Kyrko", "Katedral")
     road_suffix = ("vägen", "gatan", "avenyn", "gränd")
+
+    used_email_prefixes = []
 
     def get_random_date(self):
         return datetime.strptime("%i-%i-%i" % (randint(1970, 2005), randint(1, 12), randint(1, 28)), "%Y-%m-%d")
@@ -44,8 +44,18 @@ class TestDataGenerator():
     def get_random_name_and_email(self):
         first_name = random.choice(self.first_name_choices)
         family_name = random.choice(self.family_name_choices)
-        email = "%s.%s@gmail.com" % (first_name, family_name)
-        return (first_name, family_name, email)
+        email_prefix = unicodedata.normalize("NFKD", f"{first_name}.{family_name}".lower()).encode("ascii", "ignore").decode("ascii")
+        email_prefix = self.get_unique_email_prefix(email_prefix, 0)
+        return first_name, family_name, f"{email_prefix}@gmail.com"
+
+    def get_unique_email_prefix(self, prefix, cur):
+        test_prefix = f"{prefix}{cur if cur > 0 else ''}"
+        if test_prefix not in self.used_email_prefixes:
+            self.used_email_prefixes.append(test_prefix)
+            return test_prefix
+        else:
+            return self.get_unique_email_prefix(prefix, cur + 1)
+
 
     def get_random_address(self):
         return "%s%s %s" % (random.choice(self.road_base), random.choice(self.road_suffix), str(randint(1, 99)))
@@ -65,7 +75,7 @@ class TestDataGenerator():
 
     def create_club(self):
         club_name = self.get_random_club_name()
-        while (club_name in [club.name for club in Club.objects.all()]):
+        while club_name in [club.name for club in Club.objects.all()]:
             club_name = self.get_random_club_name()
         Club.objects.create(name=club_name, district=random.choice(District.objects.all()))
 

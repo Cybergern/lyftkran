@@ -1,12 +1,12 @@
 {% extends 'layout.html' %}
-
+{% load filter_extras %}
 {% block content %}
 <ul>
     <li><b>Namn: </b>{{ lifter }} <b>Kön: </b>({{ lifter.gender }})</li>
     <li><b>Klubb: </b>{{ lifter.club }}</li>
     <li><b>Address: </b>{{ lifter.address }}</li>
     <li><b>Postadress: </b>{{ lifter.postal_code }} {{ lifter.postal_city }}</li>
-    <li><b>Personnummer: </b>{{ lifter.id_number }}</li>
+    <li><b>Personnummer: </b>{{ lifter.id_number|personal_number }}</li>
     <li><b>Telefon: </b>{{ lifter.phone }}</li>
     <li><b>Email: </b>{{ lifter.email }}</li>
 </ul>
