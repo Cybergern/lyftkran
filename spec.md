@@ -97,6 +97,8 @@ Grunden i systemet är lyftare (användare):
 - har en eller flera omgångar
 - har ett eller flera lag
 - har en maxgräns för antal lyftare
+- kan ha en överliggande serie
+- kan ha en underliggande serie 
 
 ### En omgång:
 
