@@ -3,7 +3,7 @@ Grunden i systemet är lyftare (användare):
 ### En lyftare:
 
 - är medlem i en förening
-- kan vara administratör på förenings-, distrikts- och/eller förbundsnivå
+- kan ha en eller flera roller
 - kan ha ett användarnamn och lösenord om de ska kunna logga in som administratör
 - kan vara licensierad för ett eller flera år och har isåfall ett licensnummer
 - kan vara domare
@@ -36,8 +36,11 @@ Grunden i systemet är lyftare (användare):
 
 ### En kontaktperson:
 
-- har en roll och ett namn
+- har en uppgift och ett namn
 - kan ha kontaktuppgifter i form av e-post och telefon
+
+### En roll:
+- föreningsadministratör, distriktsadministratör, förbundsadministratör eller superadmin
 
 ### En föreningsadministratör:
 
@@ -50,7 +53,6 @@ Grunden i systemet är lyftare (användare):
 ### En distriktsadministratör:
 
 - är kopplad till ett eller flera distrikt
-- kan lägga till, ta bort och ändra föreningar i sina egna distrikt
 - kan lägga till, ta bort och ändra tävlingar i sina egna distrikt
 - kan lägga till resultat i tävlingar inom sina egna distrikt
 - kan lägga till, ta bort föreningsadministratör på lyftare i föreningar i sina egna distrikt
@@ -59,6 +61,7 @@ Grunden i systemet är lyftare (användare):
 
 - kan lägga till, ta bort och ändra distrikt
 - kan lägga till, ta bort och ändra serier
+- kan lägga till, ta bort och ändra föreningar
 - kan flytta lag mellan serier
 - kan byta förening på en lyftare
 - kan markera årsavgifter för föreningar som betalda eller fakturerade
@@ -72,7 +75,7 @@ Grunden i systemet är lyftare (användare):
 
 ### En licens:
 
-- tillhör en lyftare
+- tillhör en lyftare i kombination med en förening
 - gäller för ett visst kalenderår
 - kan vara indragen med datum för indragandet
 - begärs ett visst datum
@@ -99,6 +102,7 @@ Grunden i systemet är lyftare (användare):
 - har en maxgräns för antal lyftare
 - kan ha en överliggande serie
 - kan ha en underliggande serie 
+- har ett poängsystem
 
 ### En omgång:
 
@@ -107,6 +111,11 @@ Grunden i systemet är lyftare (användare):
 ### En grentyp:
 
 - har ett namn (just nu Bänkpress, Styrkelyft, Klassisk Bänkpress och Klassisk Styrkelyft)
+- har ett eller flera moment
+
+### Ett moment:
+
+- har ett namn (just nu Bänkpress, Knäböj, Marklyft)
 
 ### Ett lagomgångsresultat:
 
@@ -117,8 +126,9 @@ Grunden i systemet är lyftare (användare):
 - har en lyftare och invägningsvikt
 - har en viktklass
 - har en kategori
-- har ett resultat i antingen knäböj, bänkpress och marklyft eller bara bänkpress
+- har ett resultat i en grentyp
 - kan ha ett lottnummer
+- Ska kunna flaggas som struket och därmed inte räknas med
 
 ### En tävlingsinbjudan:
 
@@ -126,10 +136,11 @@ Grunden i systemet är lyftare (användare):
 - har en arrangör
 - har ett startdatum, ett slutdatum och en sista anmälningsdag
 - har kontaktuppgifter i form av en kontaktperson, telefon, e-post
-- har en grentyp
+- har en eller flera grentyper
 - har en eller flera kategorier
 - kan ha ett eller flera dokument
 - har en beskrivning
+- är kvalgrundande eller ej
 
 ### En genomförd tävling:
 
@@ -148,3 +159,7 @@ Grunden i systemet är lyftare (användare):
 ### En kategori:
 
 - har ett namn (exempelvis Herr Veteran 60-69)
+
+### Ett poängsystem
+- har ett namn (exempelvis Wilks eller IPF)
+- har en algoritm som tar in ett individuellt tävlingsresultat och producerar en poängsumma
