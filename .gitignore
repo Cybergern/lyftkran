@@ -68,3 +68,6 @@ target/
 
 # venv
 venv/
+
+# postgres
+data/

@@ -15,7 +15,7 @@ class LifterClass(Enum):
     M4 = "Veteran (70-79 år)"
 
 
-class Gender(Enum):
+class GenderChoices(Enum):
     M = "Man"
     F = "Kvinna"
 
@@ -49,7 +49,7 @@ class PointSystems(Enum):
 
 
 class Gender(models.Model):
-    name = models.CharField(max_length=1, choices=[(tag.name, tag.value) for tag in Gender])
+    name = models.CharField(max_length=1, choices=[(tag.name, tag.value) for tag in GenderChoices])
 
 
 class WeightClass(models.Model):
@@ -120,7 +120,7 @@ class District(models.Model):
     rf_number = models.PositiveIntegerField(blank=True, null=True)
     org_number = models.CharField(max_length=10, blank=True, null=True)
     contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
-    contacts = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="contact_for_districts")
+    contacts = models.ManyToManyField(Lifter)
 
 
 class Contact(models.Model):
@@ -235,11 +235,11 @@ class Document(models.Model):
 class Invitation(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
-    organizer = models.ForeignKey("Club", on_delete=models.SET_NULL, null=True)
+    organizer = models.ForeignKey("Club", on_delete=models.SET_NULL, blank=True, null=True)
     start_date = models.DateField()
     finish_date = models.DateField()
     last_signup = models.DateField()
-    contact = models.ForeignKey("Contact", on_delete=models.SET_NULL, null=True)
+    contact = models.ForeignKey("Contact", on_delete=models.SET_NULL, blank=True, null=True)
     competition_types = models.ManyToManyField(CompetitionType)
     categories = models.ManyToManyField(Category)
     documents = models.ManyToManyField(Document)

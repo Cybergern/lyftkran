@@ -48,6 +48,11 @@ class TestDataGenerator:
         email_prefix = self.get_unique_email_prefix(email_prefix, 0)
         return first_name, family_name, f"{email_prefix}@gmail.com"
 
+    def get_random_gender(self):
+        gender = Gender(name=random.choice(list(GenderChoices)).name)
+        gender.save()
+        return gender
+
     def get_unique_email_prefix(self, prefix, cur):
         test_prefix = f"{prefix}{cur if cur > 0 else ''}"
         if test_prefix not in self.used_email_prefixes:
@@ -60,6 +65,13 @@ class TestDataGenerator:
     def get_random_address(self):
         return "%s%s %s" % (random.choice(self.road_base), random.choice(self.road_suffix), str(randint(1, 99)))
 
+    def get_random_contact_info(self, email):
+        contact_info = ContactInformation(address=self.get_random_address(), postal_code=self.get_random_postal_code(),
+                                          postal_city=self.get_random_city(), phone=self.get_random_phone(),
+                                          email=email)
+        contact_info.save()
+        return contact_info
+
     def get_random_postal_code(self):
         return randint(10000, 99999)
 
@@ -71,20 +83,24 @@ class TestDataGenerator:
 
     def create_all_districts(self):
         for dis_name in self.districts:
-            District.objects.create(name=dis_name)
+            contact_info = ContactInformation.objects.create()
+            District.objects.create(name=dis_name, contact_information=contact_info)
 
     def create_club(self):
         club_name = self.get_random_club_name()
         while club_name in [club.name for club in Club.objects.all()]:
             club_name = self.get_random_club_name()
-        Club.objects.create(name=club_name, district=random.choice(District.objects.all()))
+        contact_info = ContactInformation.objects.create()
+        Club.objects.create(name=club_name, district=random.choice(District.objects.all()),
+                            contact_information=contact_info)
 
     def create_lifter(self):
         name_and_email = self.get_random_name_and_email()
-        lifter = Lifter.objects.create(first_name=name_and_email[0], family_name=name_and_email[1], address=self.get_random_address(),
-                                       postal_code=self.get_random_postal_code(), postal_city=self.get_random_city(),
-                                       gender=random.choice(list(Gender)).name, id_number=self.get_random_id(),
-                                       club=random.choice(Club.objects.all()), phone=self.get_random_phone(), email=name_and_email[2])
+        contact_info = self.get_random_contact_info(name_and_email[2])
+        lifter = Lifter.objects.create(first_name=name_and_email[0], family_name=name_and_email[1],
+                                       contact_information=contact_info,
+                                       gender=self.get_random_gender(), id_number=self.get_random_id(),
+                                       club=random.choice(Club.objects.all()))
         self.create_licenses(lifter)
 
     def rand_boolean(self):

@@ -87,12 +87,12 @@ WSGI_APPLICATION = 'lyftkran.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lyftkran',
-        'USER': 'lyftkran',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'lyftkran_db',
+        'USER': 'lyftkran_user',
         'PASSWORD': SECRETS["DJANGO_DB_PASS"],
-        'HOST': 'localhost',
-        'PORT': ''
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
