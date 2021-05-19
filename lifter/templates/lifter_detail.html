@@ -2,7 +2,7 @@
 {% load filter_extras %}
 {% block content %}
 <ul>
-    <li><b>Namn: </b>{{ lifter }} <b>Kön: </b>({{ lifter.gender }})</li>
+    <li><b>Namn: </b>{{ lifter }} <b>Kön: </b>({{ lifter.gender_name }})</li>
     <li><b>Klubb: </b>{{ lifter.club }}</li>
     <li><b>Address: </b>{{ lifter.address }}</li>
     <li><b>Postadress: </b>{{ lifter.postal_code }} {{ lifter.postal_city }}</li>

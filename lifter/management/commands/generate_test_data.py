@@ -1,6 +1,6 @@
 import random
 import unicodedata
-import uuid
+from datetime import datetime
 from random import randint
 
 from django.core.management.base import BaseCommand
@@ -10,10 +10,6 @@ from lifter.models import *
 
 class TestDataGenerator:
 
-    first_name_choices = ("Björn", "Johanna", "Leslie", "Kim",
-                          "Stefan", "Göran", "My", "Linnea", "Maria", "Hampus")
-    family_name_choices = ("Karlsson", "Persson", "Marquis", "May", "Merkel", "Johansson", "Gustafsson",
-                           "Thyberg", "Olsson", "Björkman")
     city_name_choices = ("Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås", "Örebro", "Linköping",
                          "Helsingborg", "Jönköping", "Norrköping", "Lund", "Umeå", "Gävle", "Solna", "Växjö")
     club_suffix_choices = ("SK", "TK", "AK", "KK", "IK", "IF")
@@ -24,6 +20,11 @@ class TestDataGenerator:
     road_suffix = ("vägen", "gatan", "avenyn", "gränd")
 
     used_email_prefixes = []
+
+    def __init__(self, female_first_name_choices, male_first_name_choices, last_name_choices):
+        self.female_first_name_choices = female_first_name_choices
+        self.male_first_name_choices = male_first_name_choices
+        self.last_name_choices = last_name_choices
 
     def get_random_date(self):
         return datetime.strptime("%i-%i-%i" % (randint(1970, 2005), randint(1, 12), randint(1, 28)), "%Y-%m-%d")
@@ -41,17 +42,18 @@ class TestDataGenerator:
     def get_random_club_name(self):
         return random.choice(self.city_name_choices) + " " + random.choice(self.club_suffix_choices)
 
-    def get_random_name_and_email(self):
-        first_name = random.choice(self.first_name_choices)
-        family_name = random.choice(self.family_name_choices)
+    def get_random_name_and_email(self, gender):
+        if gender == GenderChoices.F:
+            first_name = random.choice(self.female_first_name_choices)
+        else:
+            first_name = random.choice(self.male_first_name_choices)
+        family_name = random.choice(self.last_name_choices)
         email_prefix = unicodedata.normalize("NFKD", f"{first_name}.{family_name}".lower()).encode("ascii", "ignore").decode("ascii")
         email_prefix = self.get_unique_email_prefix(email_prefix, 0)
         return first_name, family_name, f"{email_prefix}@gmail.com"
 
     def get_random_gender(self):
-        gender = Gender(name=random.choice(list(GenderChoices)).name)
-        gender.save()
-        return gender
+        return random.choice(list(GenderChoices)).name
 
     def get_unique_email_prefix(self, prefix, cur):
         test_prefix = f"{prefix}{cur if cur > 0 else ''}"
@@ -95,11 +97,12 @@ class TestDataGenerator:
                             contact_information=contact_info)
 
     def create_lifter(self):
-        name_and_email = self.get_random_name_and_email()
+        gender = self.get_random_gender()
+        name_and_email = self.get_random_name_and_email(gender)
         contact_info = self.get_random_contact_info(name_and_email[2])
         lifter = Lifter.objects.create(first_name=name_and_email[0], family_name=name_and_email[1],
                                        contact_information=contact_info,
-                                       gender=self.get_random_gender(), id_number=self.get_random_id(),
+                                       gender=gender, id_number=self.get_random_id(),
                                        club=random.choice(Club.objects.all()))
         self.create_licenses(lifter)
 
@@ -116,7 +119,8 @@ class TestDataGenerator:
                 license_year = x
                 license_status = random.choice(list(LicenseStatus)).name
                 License.objects.create(
-                    lifter=license_lifter, number=license_number, year=license_year, status=license_status)
+                    lifter=license_lifter, number=license_number, year=license_year, status=license_status,
+                    club=license_lifter.club)
 
     def make_test_data(self):
         self.create_all_districts()
@@ -129,4 +133,10 @@ class TestDataGenerator:
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        TestDataGenerator().make_test_data()
+        with open('lifter/management/commands/data/female_first_names.txt', 'r') as reader:
+            female_first_name_choices = reader.read().splitlines()
+        with open('lifter/management/commands/data/male_first_names.txt', 'r') as reader:
+            male_first_name_choices = reader.read().splitlines()
+        with open('lifter/management/commands/data/family_names.txt') as reader:
+            last_name_choices = reader.read().splitlines()
+        TestDataGenerator(female_first_name_choices, male_first_name_choices, last_name_choices).make_test_data()

@@ -1,9 +1,8 @@
 """ Create your models here. """
-from datetime import datetime
 from enum import Enum
 from django.db import models
 from django.utils import timezone
-
+from django.utils.translation import gettext_lazy as _
 
 class LifterClass(Enum):
     U = "Ungdom"
@@ -48,10 +47,6 @@ class PointSystems(Enum):
     WLK = "Wilks-poäng"
 
 
-class Gender(models.Model):
-    name = models.CharField(max_length=1, choices=[(tag.name, tag.value) for tag in GenderChoices])
-
-
 class WeightClass(models.Model):
     min_weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     max_weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
@@ -66,7 +61,7 @@ class AgeBracket(models.Model):
 
 
 class Category(models.Model):
-    gender = models.ForeignKey("Gender", on_delete=models.CASCADE, related_name="gender_categories")
+    gender = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in GenderChoices])
     weight_class = models.ForeignKey("WeightClass", on_delete=models.CASCADE, related_name="weight_categories")
     age_bracket = models.ForeignKey("AgeBracket", on_delete=models.CASCADE, related_name="age_categories")
 
@@ -79,11 +74,17 @@ class Lifter(models.Model):
     first_name = models.CharField(max_length=50)
     family_name = models.CharField(max_length=100)
     contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
-    gender = models.ForeignKey("Gender", on_delete=models.CASCADE, related_name="categories")
+    gender = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in GenderChoices])
     id_number = models.CharField(max_length=12)
     club = models.ForeignKey("Club", on_delete=models.DO_NOTHING, related_name="lifters")
 
     created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    def gender_name(self):
+        if self.gender == GenderChoices.F:
+            return GenderChoices.F.value
+        else:
+            return GenderChoices.M.value
 
 
 class License(models.Model):
