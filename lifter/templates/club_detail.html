@@ -8,7 +8,7 @@
 
 <ul>
     <li><b>Lifters:</b></li>
-    {% for lifter in club.lifter_set.all %}
+    {% for lifter in club.lifters.all %}
     <li><a href="../../lifters/{{ lifter.id }}/">{{ lifter }}</a></li>
     {% endfor %}
 </ul>
