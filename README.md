@@ -21,3 +21,7 @@ If you make changes to models, run:
 `docker compose run web python3 manage.py makemigrations`
 
 `docker compose run web python3 manage.py migrate`
+
+To view a list of lifters, go to http://localhost:8000/lifter/lifters/
+
+To view a list of clubs, go to http://localhost:8000/lifter/clubs/
