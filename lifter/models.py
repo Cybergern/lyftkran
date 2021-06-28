@@ -40,6 +40,7 @@ class CompetitionTypes(Enum):
     CPL = "Klassiskt Styrkelyft"
     EPL = "Utrustat Styrkelyft"
     CBP = "Klassisk Bänkpress"
+    PBP = "Paralympisk Bänkpress"
 
 
 class PointSystems(Enum):
@@ -66,6 +67,25 @@ class Category(models.Model):
     age_bracket = models.ForeignKey("AgeBracket", on_delete=models.CASCADE, related_name="age_categories")
 
 
+class Fee(models.Model):
+    year = models.PositiveIntegerField()
+    invoiced_at = models.DateTimeField(blank=True, null=True)
+    paid_at = models.DateTimeField(blank=True, null=True)
+
+
+class Club(models.Model):
+    """Represents a club"""
+    def __str__(self):
+        return self.name
+
+    name = models.CharField(max_length=100)
+    district = models.ForeignKey("District", on_delete=models.CASCADE)
+    rf_number = models.PositiveIntegerField(blank=True, null=True)
+    org_number = models.CharField(max_length=10, blank=True, null=True)
+    contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
+    fees = models.ManyToManyField(Fee)
+
+
 class Lifter(models.Model):
     """Represents a single lifter within the organization"""
     def __str__(self):
@@ -76,7 +96,7 @@ class Lifter(models.Model):
     contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
     gender = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in GenderChoices])
     id_number = models.CharField(max_length=12)
-    club = models.ForeignKey("Club", on_delete=models.DO_NOTHING, related_name="lifters")
+    clubs = models.ManyToManyField(Club, related_name="lifters")
 
     created_at = models.DateTimeField(default=timezone.now, editable=False)
 
@@ -103,7 +123,7 @@ class License(models.Model):
         unique_together = [["number", "year"]]
 
 
-class Judge(models.Model):
+class JudgeLicense(models.Model):
     def __str__(self):
         return f"{str(self.lifter)}, {self.judge_level} ({self.book_number})"
 
@@ -111,6 +131,7 @@ class Judge(models.Model):
     judge_level = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in JudgeLevel])
     book_number = models.PositiveIntegerField()
     approved = models.BooleanField()
+    year = models.PositiveIntegerField()
 
 
 class District(models.Model):
@@ -139,25 +160,6 @@ class ContactInformation(models.Model):
     email = models.EmailField(blank=True, null=True)
 
 
-class Fee(models.Model):
-    year = models.PositiveIntegerField()
-    invoiced_at = models.DateTimeField(blank=True, null=True)
-    paid_at = models.DateTimeField(blank=True, null=True)
-
-
-class Club(models.Model):
-    """Represents a club"""
-    def __str__(self):
-        return self.name
-
-    name = models.CharField(max_length=100)
-    district = models.ForeignKey("District", on_delete=models.CASCADE)
-    rf_number = models.PositiveIntegerField(blank=True, null=True)
-    org_number = models.CharField(max_length=10, blank=True, null=True)
-    contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
-    fees = models.ManyToManyField(Fee)
-
-
 class ClubAdmin(models.Model):
     lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="club_admin")
     clubs = models.ManyToManyField(Club)
@@ -170,6 +172,14 @@ class DistrictAdmin(models.Model):
 
 class NationalAdmin(models.Model):
     lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="national_admin")
+
+
+class CompetitionAdmin(models.Model):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="competition_admin")
+
+
+class CompetitionOrganizer(models.Model):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="competition_organizer")
 
 
 class SuperAdmin(models.Model):
@@ -233,6 +243,10 @@ class Document(models.Model):
     file = models.FileField()
 
 
+class QualificationLevels(models.Model):
+    category = models.ForeignKey("Category", on_delete=models.DO_NOTHING)
+    qualification_limit = models.PositiveIntegerField()
+
 class Invitation(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
@@ -244,7 +258,8 @@ class Invitation(models.Model):
     competition_types = models.ManyToManyField(CompetitionType)
     categories = models.ManyToManyField(Category)
     documents = models.ManyToManyField(Document)
-    qualification = models.BooleanField()
+    qualification_levels = models.ManyToManyField(QualificationLevels)
+    affects_ranking = models.BooleanField(default=True)
 
 
 class Competition(models.Model):

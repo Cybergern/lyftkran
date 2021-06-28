@@ -102,8 +102,8 @@ class TestDataGenerator:
         contact_info = self.get_random_contact_info(name_and_email[2])
         lifter = Lifter.objects.create(first_name=name_and_email[0], family_name=name_and_email[1],
                                        contact_information=contact_info,
-                                       gender=gender, id_number=self.get_random_id(),
-                                       club=random.choice(Club.objects.all()))
+                                       gender=gender, id_number=self.get_random_id())
+        lifter.clubs.set([random.choice(Club.objects.all())])
         self.create_licenses(lifter)
 
     def rand_boolean(self):
@@ -120,7 +120,7 @@ class TestDataGenerator:
                 license_status = random.choice(list(LicenseStatus)).name
                 License.objects.create(
                     lifter=license_lifter, number=license_number, year=license_year, status=license_status,
-                    club=license_lifter.club)
+                    club=license_lifter.clubs.all()[0])
 
     def make_test_data(self):
         self.create_all_districts()
