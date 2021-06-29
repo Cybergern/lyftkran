@@ -33,6 +33,7 @@ class Disciplines(Enum):
     SQ = "Knäböj"
     BP = "Bänkpress"
     DL = "Marklyft"
+    PB = "Paralympisk Bänkpress"
 
 
 class CompetitionTypes(Enum):
@@ -134,6 +135,13 @@ class JudgeLicense(models.Model):
     year = models.PositiveIntegerField()
 
 
+class Contact(models.Model):
+    role = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+
+
 class District(models.Model):
     """Represents a district"""
     def __str__(self):
@@ -142,14 +150,7 @@ class District(models.Model):
     rf_number = models.PositiveIntegerField(blank=True, null=True)
     org_number = models.CharField(max_length=10, blank=True, null=True)
     contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
-    contacts = models.ManyToManyField(Lifter)
-
-
-class Contact(models.Model):
-    role = models.CharField(max_length=50)
-    name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=50, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
+    contacts = models.ManyToManyField(Contact)
 
 
 class ContactInformation(models.Model):
@@ -215,10 +216,10 @@ class Result(models.Model):
                                          related_name="individual_results")
 
 
-class TeamResult(models.Model):
+class SeriesTeamResult(models.Model):
     team = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="team_results")
     round = models.ForeignKey("Round", on_delete=models.CASCADE, related_name="results")
-    results = models.ManyToManyField(CollectedResult)
+    results = models.ManyToManyField(Result)
 
 
 class PointSystem(models.Model):

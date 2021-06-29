@@ -2,35 +2,51 @@ Grunden i systemet är lyftare (användare):
 
 ### En lyftare:
 
-- är medlem i en förening
+- är medlem i en eller flera föreningar
 - kan ha en eller flera roller
 - kan ha ett användarnamn och lösenord om de ska kunna logga in som administratör
-- kan vara licensierad för ett eller flera år och har isåfall ett licensnummer
-- kan vara domare
-- har ett namn, ett kön, en kategori, en förening och ett distrikt
+- kan ha en eller flera lyftarlicenser
+- kan ha en eller flera domarlicenser
+- har ett namn, ett kön och ett personnummer
 - kan ha kontaktuppgifter i form av en postadress, telefon och e-post
 
-### En domare:
+### En lyftarlicens:
 
+- gäller ett visst år 
+- är kopplad till en klubb
+- har ett licensnummer
+- begärdes ett visst datum
+- kan ha upphävts ett visst datum
+- har en status
+
+
+### En domarlicens:
+
+- gäller ett visst år
 - har ett boknummer
-- kan vara godkänd eller ej
-- har en domarnivå som kan ändras
+- är godkänd eller ej
+- har en domarnivå
 
 ### En förening: 
 
 - har ett namn och föreningsnummer
 - tillhör ett distrikt
+- har ett RF-nummer
+- har ett organisationsnummer
 - har noll eller flera lyftare
 - kan ha kontaktuppgifter och postadress
 - kan ha ett antal årsavgifter kopplade till sig
 
 ### En årsavgift:
 
+- har ett år
 - kan vara fakturerad eller betald med datum
 
 ### Ett distrikt:
 
-- har ett namn och föreningsnummer och/eller organisationsnummer
+- har ett namn
+- har ett RF-nummer
+- har ett organisationsnummer
 - kan ha kontaktuppgifter i form av telefon, e-post, hemsida och postadress
 - kan ha noll eller flera kontaktpersoner
 
@@ -40,7 +56,7 @@ Grunden i systemet är lyftare (användare):
 - kan ha kontaktuppgifter i form av e-post och telefon
 
 ### En roll:
-- föreningsadministratör, distriktsadministratör, förbundsadministratör eller superadmin
+- föreningsadministratör, distriktsadministratör, förbundsadministratör, tävlingsansvarig, tävlingskommitte eller superadmin
 
 ### En föreningsadministratör:
 
@@ -69,6 +85,14 @@ Grunden i systemet är lyftare (användare):
 - kan ta bort distriktsadministratör från en lyftare
 - kan lägga till, ta bort distriktsadministratör på andra lyftare
 
+### En tävlingskommittemedlem
+
+- kan lägga till, ta bort och ändra i tävlingar
+
+### En tävlingsansvarig
+
+- kan lägga till nya tävlingar
+
 ### En superadmin:
 
 - kan lägga till, ta bort förbundsadministratör
@@ -90,7 +114,7 @@ Grunden i systemet är lyftare (användare):
 
 - tillhör en förening
 - är med i en specifik serie
-- har ett eller flera omgångsresultat
+- kan ha ett eller flera omgångsresultat
 
 ### En serie:
 
@@ -110,16 +134,16 @@ Grunden i systemet är lyftare (användare):
 
 ### En grentyp:
 
-- har ett namn (just nu Bänkpress, Styrkelyft, Klassisk Bänkpress och Klassisk Styrkelyft)
+- har ett namn (just nu Bänkpress, Styrkelyft, Klassisk Bänkpress, Klassisk Styrkelyft och Parabänk)
 - har ett eller flera moment
 
 ### Ett moment:
 
-- har ett namn (just nu Bänkpress, Knäböj, Marklyft)
+- har ett namn (just nu Bänkpress, Knäböj, Marklyft, Parabänk)
 
 ### Ett lagomgångsresultat:
 
-- består av ett eller flera individuella tävlingsresultat från lyftare tillhörande lagets förening i en omgång upp till maxgränsen för serien
+- består av ett eller flera samlade resultat från lyftare tillhörande lagets förening i en omgång upp till maxgränsen för serien
 
 ### Ett individuellt tävlingsresultat:
 
@@ -141,6 +165,7 @@ Grunden i systemet är lyftare (användare):
 - kan ha ett eller flera dokument
 - har en beskrivning
 - är kvalgrundande eller ej
+- kan ha kvalgränser kopplade till varje deltagande kategori
 
 ### En genomförd tävling:
 
