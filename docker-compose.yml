@@ -2,15 +2,22 @@ version: "3.9"
 
 services:
   db:
-    image: postgres
+    image: postgres:14-alpine
+    user: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
+      - PGUSER=lyftkran_user
       - POSTGRES_DB=lyftkran_db
       - POSTGRES_USER=lyftkran_user
       - POSTGRES_PASSWORD=lyftkran_pass
     ports:
       - "5342:5342"
+    healthcheck:
+      test: "pg_isready -d $$POSTGRES_DB"
+      interval: "10s"
+      timeout: "2s"
+      retries: 5
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -19,4 +26,5 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
