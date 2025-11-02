@@ -39,11 +39,13 @@ class TestDataGenerator:
         control_number = (10 - (full_sum % 10)) % 10
         return personal_number + str(control_number)
 
-    def get_random_club_name(self):
-        return random.choice(self.city_name_choices) + " " + random.choice(self.club_suffix_choices)
+    def get_random_club_name_and_email(self):
+        club_name = random.choice(self.city_name_choices) + " " + random.choice(self.club_suffix_choices)
+        club_email = club_name.lower().replace(" ", "_") + "@gmail.com"
+        return club_name, club_email
 
     def get_random_name_and_email(self, gender):
-        if gender == GenderChoices.F:
+        if gender == GenderChoices.FEMALE:
             first_name = random.choice(self.female_first_name_choices)
         else:
             first_name = random.choice(self.male_first_name_choices)
@@ -53,7 +55,7 @@ class TestDataGenerator:
         return first_name, family_name, f"{email_prefix}@gmail.com"
 
     def get_random_gender(self):
-        return random.choice(list(GenderChoices)).name
+        return random.choice(list(GenderChoices))
 
     def get_unique_email_prefix(self, prefix, cur):
         test_prefix = f"{prefix}{cur if cur > 0 else ''}"
@@ -68,10 +70,9 @@ class TestDataGenerator:
         return "%s%s %s" % (random.choice(self.road_base), random.choice(self.road_suffix), str(randint(1, 99)))
 
     def get_random_contact_info(self, email):
-        contact_info = ContactInformation(address=self.get_random_address(), postal_code=self.get_random_postal_code(),
+        contact_info = ContactInformation.objects.create(address=self.get_random_address(), postal_code=self.get_random_postal_code(),
                                           postal_city=self.get_random_city(), phone=self.get_random_phone(),
                                           email=email)
-        contact_info.save()
         return contact_info
 
     def get_random_postal_code(self):
@@ -85,26 +86,31 @@ class TestDataGenerator:
 
     def create_all_districts(self):
         for dis_name in self.districts:
-            contact_info = ContactInformation.objects.create()
+            dis_email = dis_name.lower().replace(" ", "_") + "@gmail.com"
+            contact_info = self.get_random_contact_info(dis_email)
             District.objects.create(name=dis_name, contact_information=contact_info)
 
     def create_club(self):
-        club_name = self.get_random_club_name()
+        club_name, club_email = self.get_random_club_name_and_email()
         while club_name in [club.name for club in Club.objects.all()]:
-            club_name = self.get_random_club_name()
-        contact_info = ContactInformation.objects.create()
+            club_name, club_email = self.get_random_club_name_and_email()
+        contact_info = self.get_random_contact_info(club_email)
         Club.objects.create(name=club_name, district=random.choice(District.objects.all()),
                             contact_information=contact_info)
 
     def create_lifter(self):
         gender = self.get_random_gender()
-        name_and_email = self.get_random_name_and_email(gender)
-        contact_info = self.get_random_contact_info(name_and_email[2])
-        lifter = Lifter.objects.create(first_name=name_and_email[0], family_name=name_and_email[1],
+        first_name, family_name, email = self.get_random_name_and_email(gender)
+        contact_info = self.get_random_contact_info(email)
+        lifter = Lifter.objects.create(first_name=first_name, family_name=family_name,
                                        contact_information=contact_info,
                                        gender=gender, id_number=self.get_random_id())
-        lifter.clubs.set([random.choice(Club.objects.all())])
+        lifter.clubs.set(self.get_random_club_list())
         self.create_licenses(lifter)
+
+    def get_random_club_list(self):
+        no_of_clubs = random.randint(1, 3)
+        return random.choices(Club.objects.all(), k=no_of_clubs)
 
     def rand_boolean(self):
         return bool(random.getrandbits(1))
@@ -117,7 +123,7 @@ class TestDataGenerator:
                                  license_lifter.first_name[0].lower() + \
                                  license_lifter.family_name[0].lower()
                 license_year = x
-                license_status = random.choice(list(LicenseStatus)).name
+                license_status = random.choice(list(LicenseStatus))
                 License.objects.create(
                     lifter=license_lifter, number=license_number, year=license_year, status=license_status,
                     club=license_lifter.clubs.all()[0])

@@ -2,13 +2,13 @@
 {% load filter_extras %}
 {% block content %}
 <ul>
-    <li><b>Namn: </b>{{ lifter }} <b>Kön: </b>({{ lifter.gender_name }})</li>
-    <li><b>Klubb: </b>{{ lifter.club }}</li>
-    <li><b>Address: </b>{{ lifter.address }}</li>
-    <li><b>Postadress: </b>{{ lifter.postal_code }} {{ lifter.postal_city }}</li>
+    <li><b>Namn: </b>{{ lifter }} <b>Kön: </b>{{ lifter.get_gender.label }}</li>
+    <li><b>Klubbar: </b>{{ lifter.get_club_list }}</li>
+    <li><b>Address: </b>{{ lifter.contact_information.address }}</li>
+    <li><b>Postadress: </b>{{ lifter.contact_information.postal_code }} {{ lifter.contact_information.postal_city }}</li>
     <li><b>Personnummer: </b>{{ lifter.id_number|personal_number }}</li>
-    <li><b>Telefon: </b>{{ lifter.phone }}</li>
-    <li><b>Email: </b>{{ lifter.email }}</li>
+    <li><b>Telefon: </b>{{ lifter.contact_information.phone }}</li>
+    <li><b>Email: </b>{{ lifter.contact_information.email }}</li>
 </ul>
 
 <ul>

@@ -1,52 +1,51 @@
 """ Create your models here. """
-from enum import Enum
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-class LifterClass(Enum):
-    U = "Ungdom"
-    J = "Junior"
-    S = "Senior"
-    M1 = "Veteran (40-49 år)"
-    M2 = "Veteran (50-59 år)"
-    M3 = "Veteran (60-69 år)"
-    M4 = "Veteran (70-79 år)"
+class LifterClass(models.TextChoices):
+    YOUTH = "U", _("Ungdom")
+    JUNIOR = "J", _("Junior")
+    SENIOR = "S", _("Senior")
+    MASTER_1 = "M1", _("Veteran (40-49 år)")
+    MASTER_2 = "M2", _("Veteran (50-59 år)")
+    MASTER_3 = "M3", _("Veteran (60-69 år)")
+    MASTER_4 = "M4", _("Veteran (70-79 år)")
 
 
-class GenderChoices(Enum):
-    M = "Man"
-    F = "Kvinna"
+class GenderChoices(models.TextChoices):
+    MALE = "M", _("Man") 
+    FEMALE = "F", _("Kvinna")
 
 
-class LicenseStatus(Enum):
-    LI = "Licensierad"
-    EL = "Ej licensierad"
+class LicenseStatus(models.TextChoices):
+    LICENSED = "L", _("Licensierad")
+    NO_LICENSE = "N", _("Ej licensierad")
 
 
-class JudgeLevel(Enum):
-    DD = "Distriktsdomare"
-    FD = "Förbundsdomare"
+class JudgeLevel(models.TextChoices):
+    DISTRICT_JUDGE = "D", _("Distriktsdomare")
+    FEDERATION_JUDGE = "F", _("Förbundsdomare")
 
 
-class Disciplines(Enum):
-    SQ = "Knäböj"
-    BP = "Bänkpress"
-    DL = "Marklyft"
-    PB = "Paralympisk Bänkpress"
+class Disciplines(models.TextChoices):
+    SQUAT = "S", _("Knäböj")
+    BENCHPRESS = "B", _("Bänkpress")
+    DEADLIFT = "D", _("Marklyft")
+    PARALYMPIC_BENCH = "P", _("Paralympisk Bänkpress")
 
 
-class CompetitionTypes(Enum):
-    EBP = "Utrustad Bänkpress"
-    CPL = "Klassiskt Styrkelyft"
-    EPL = "Utrustat Styrkelyft"
-    CBP = "Klassisk Bänkpress"
-    PBP = "Paralympisk Bänkpress"
+class CompetitionTypes(models.TextChoices):
+    EQUIPPED_BENCH = "EB", _("Utrustad Bänkpress")
+    CLASSIC_POWERLIFTING = "CP", _("Klassiskt Styrkelyft")
+    EQUIPPED_POWERLIFTING = "EP", _("Utrustat Styrkelyft")
+    CLASSIC_BENCHPRESS = "CB", _("Klassisk Bänkpress")
+    PARALYMPIC_BENCHPRESS = "PB", _("Paralympisk Bänkpress")
 
 
-class PointSystems(Enum):
-    IPF = "IPF-poäng"
-    WLK = "Wilks-poäng"
+class PointSystems(models.TextChoices):
+    IPF_POINTS = "I", _("IPF-poäng")
+    WILKS_POINTS = "W", _("Wilks-poäng")
 
 
 class WeightClass(models.Model):
@@ -56,14 +55,14 @@ class WeightClass(models.Model):
 
 
 class AgeBracket(models.Model):
-    name = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in LifterClass])
+    name = models.CharField(max_length=2, choices=LifterClass.choices)
     min_age = models.PositiveIntegerField()
     max_age = models.PositiveIntegerField()
     archived = models.BooleanField(default=False)
 
 
 class Category(models.Model):
-    gender = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in GenderChoices])
+    gender = models.CharField(max_length=2, choices=GenderChoices.choices)
     weight_class = models.ForeignKey("WeightClass", on_delete=models.CASCADE, related_name="weight_categories")
     age_bracket = models.ForeignKey("AgeBracket", on_delete=models.CASCADE, related_name="age_categories")
 
@@ -95,17 +94,17 @@ class Lifter(models.Model):
     first_name = models.CharField(max_length=50)
     family_name = models.CharField(max_length=100)
     contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
-    gender = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in GenderChoices])
+    gender = models.CharField(max_length=2, choices=GenderChoices.choices)
     id_number = models.CharField(max_length=12)
     clubs = models.ManyToManyField(Club, related_name="lifters")
 
     created_at = models.DateTimeField(default=timezone.now, editable=False)
 
-    def gender_name(self):
-        if self.gender == GenderChoices.F:
-            return GenderChoices.F.value
-        else:
-            return GenderChoices.M.value
+    def get_gender(self) -> GenderChoices:
+        return GenderChoices(self.gender)
+    
+    def get_club_list(self) -> str:
+        return ", ".join([x.name for x in self.clubs.all()])
 
 
 class License(models.Model):
@@ -118,7 +117,7 @@ class License(models.Model):
     year = models.PositiveIntegerField()
     requested = models.DateTimeField(default=timezone.now, blank=True)
     canceled_at = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in LicenseStatus])
+    status = models.CharField(max_length=2, choices=LicenseStatus.choices)
 
     class Meta:
         unique_together = [["number", "year"]]
@@ -129,7 +128,7 @@ class JudgeLicense(models.Model):
         return f"{str(self.lifter)}, {self.judge_level} ({self.book_number})"
 
     lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="judge_credentials")
-    judge_level = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in JudgeLevel])
+    judge_level = models.CharField(max_length=2, choices=JudgeLevel.choices)
     book_number = models.PositiveIntegerField()
     approved = models.BooleanField()
     year = models.PositiveIntegerField()
@@ -188,11 +187,11 @@ class SuperAdmin(models.Model):
 
 
 class CompetitionType(models.Model):
-    name = models.CharField(max_length=3, choices=[(tag.name, tag.value) for tag in CompetitionTypes])
+    name = models.CharField(max_length=3, choices=CompetitionTypes.choices)
 
 
 class Discipline(models.Model):
-    name = models.CharField(max_length=2, choices=[(tag.name, tag.value) for tag in Disciplines])
+    name = models.CharField(max_length=2, choices=Disciplines.choices)
     competition_type = models.ManyToManyField(CompetitionType)
 
 
@@ -223,7 +222,7 @@ class SeriesTeamResult(models.Model):
 
 
 class PointSystem(models.Model):
-    name = models.CharField(max_length=3, choices=[(tag.name, tag.value) for tag in PointSystems])
+    name = models.CharField(max_length=3, choices=PointSystems.choices)
 
 
 class Division(models.Model):
