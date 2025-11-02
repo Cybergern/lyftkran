@@ -12,8 +12,9 @@
 </ul>
 
 <ul>
-    {% for license in lifter.license_set.all %}
-    <li>{{ license }}</li>
+    <li><b>Licens:</b></li>
+    {% for license in lifter.licenses.all %}
+    <li>{{ license.number }} - {{ license.club.name }} - {{ license.year }}</li>
     {% endfor %}
 </ul>
 {% endblock %}
