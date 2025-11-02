@@ -11,6 +11,7 @@ services:
       - POSTGRES_DB=lyftkran_db
       - POSTGRES_USER=lyftkran_user
       - POSTGRES_PASSWORD=lyftkran_pass
+      - DJANGO_SETTINGS_MODULE=lyftkran
     ports:
       - "5432:5432"
     healthcheck:

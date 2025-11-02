@@ -1,10 +1,10 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Lifter
-from .models import License
-from .models import District
-from .models import Club
+from lifter.models import Lifter
+from lifter.models import License
+from lifter.models import District
+from lifter.models import Club
 
 admin.site.register(Lifter)
 admin.site.register(License)

@@ -15,13 +15,17 @@ Also create a file in the root called secrets.json and put this in it:
     "DJANGO_DB_PASS":"lyftkran_pass"
 }`
 
-To get some test data, run:
+To get some example data, run:
 
 `docker compose run web python3 manage.py generate_test_data`
 
-To remove that same test data, run:
+To remove that same example data, run:
 
 `docker compose run web python3 manage.py clear_test_data`
+
+To run all the tests, run:
+
+`docker compose run web pytest`
 
 If you make changes to models, run:
 

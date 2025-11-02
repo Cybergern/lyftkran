@@ -1,4 +1,5 @@
 """ Create your models here. """
+from typing import override
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -79,7 +80,7 @@ class Club(models.Model):
         return self.name
 
     name = models.CharField(max_length=100)
-    district = models.ForeignKey("District", on_delete=models.CASCADE)
+    district = models.ForeignKey("District", on_delete=models.CASCADE, related_name="clubs")
     rf_number = models.PositiveIntegerField(blank=True, null=True)
     org_number = models.CharField(max_length=10, blank=True, null=True)
     contact_information = models.ForeignKey("ContactInformation", on_delete=models.CASCADE)
@@ -160,32 +161,6 @@ class ContactInformation(models.Model):
     email = models.EmailField(blank=True, null=True)
 
 
-class ClubAdmin(models.Model):
-    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="club_admin")
-    clubs = models.ManyToManyField(Club)
-
-
-class DistrictAdmin(models.Model):
-    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="district_admin")
-    districts = models.ManyToManyField(District)
-
-
-class NationalAdmin(models.Model):
-    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="national_admin")
-
-
-class CompetitionAdmin(models.Model):
-    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="competition_admin")
-
-
-class CompetitionOrganizer(models.Model):
-    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="competition_organizer")
-
-
-class SuperAdmin(models.Model):
-    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="super_admin")
-
-
 class CompetitionType(models.Model):
     name = models.CharField(max_length=3, choices=CompetitionTypes.choices)
 
@@ -247,6 +222,12 @@ class QualificationLevels(models.Model):
     category = models.ForeignKey("Category", on_delete=models.DO_NOTHING)
     qualification_limit = models.PositiveIntegerField()
 
+
+class Competition(models.Model):
+    invitation = models.ForeignKey("Invitation", on_delete=models.CASCADE)
+    results = models.ManyToManyField(CollectedResult)
+
+
 class Invitation(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
@@ -262,6 +243,85 @@ class Invitation(models.Model):
     affects_ranking = models.BooleanField(default=True)
 
 
-class Competition(models.Model):
-    invitation = models.ForeignKey("Invitation", on_delete=models.CASCADE)
-    results = models.ManyToManyField(CollectedResult)
+class AbstractAdmin(models.Model):
+    class Meta:
+           abstract = True
+
+    def can_admin_club(self, club: Club):
+        return False
+    
+    def can_admin_comp(self, competition: Competition):
+        return False
+
+
+class ClubAdmin(AbstractAdmin):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="club_admin")
+    clubs = models.ManyToManyField(Club)
+
+    @override
+    def can_admin_club(self, club: Club):
+        return club in self.clubs.all()
+
+    @override
+    def can_admin_comp(self, competition: Competition):
+        if not competition.invitation.organizer:
+            return False
+        else:
+            return competition.invitation.organizer in self.clubs.all()
+
+
+class DistrictAdmin(AbstractAdmin):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="district_admin")
+    districts = models.ManyToManyField(District)
+
+    @override
+    def can_admin_club(self, club: Club):
+        return club.district in self.districts.all()
+
+    @override
+    def can_admin_comp(self, competition: Competition):
+        if not competition.invitation.organizer:
+            return False
+        return competition.invitation.organizer.district in self.districts.all()
+
+
+class CompetitionAdmin(AbstractAdmin):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="competition_admin")
+    competitions = models.ManyToManyField(Competition)
+
+    @override
+    def can_admin_comp(self, competition: Competition):
+        return competition in self.competitions.all()
+
+
+class CompetitionOrganizer(AbstractAdmin):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="competition_organizer")
+    competitions = models.ManyToManyField(Competition)
+
+    @override
+    def can_admin_comp(self, competition: Competition):
+        return competition in self.competitions.all()
+
+
+class NationalAdmin(AbstractAdmin):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="national_admin")
+
+    @override
+    def can_admin_club(self, club: Club):
+        return True
+
+    @override
+    def can_admin_comp(self, competition: Competition):
+        return True
+
+
+class SuperAdmin(AbstractAdmin):
+    lifter = models.ForeignKey("Lifter", on_delete=models.CASCADE, related_name="super_admin")
+
+    @override
+    def can_admin_club(self, club: Club):
+        return True
+
+    @override
+    def can_admin_comp(self, competition: Competition):
+        return True

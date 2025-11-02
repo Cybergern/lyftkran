@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from lifter import views
 
 urlpatterns = [
     path('lifters/', views.LifterList.as_view()),

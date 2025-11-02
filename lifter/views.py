@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 import math
 
-from .models import *
+from lifter.models import *
 
 
 # Create your views here.
